@@ -16,3 +16,10 @@ $obRouter->get('/sobre',[
         return new Response(200,Pages\About::getAbout());
     }
 ]);
+
+//ROTA DINÂMICA
+$obRouter->get('/pagina/{idPagina}/{acao}',[
+    function($idPagina,$acao){
+        return new Response(200,'Página'.$idPagina.' - '.$acao);
+    }
+]);

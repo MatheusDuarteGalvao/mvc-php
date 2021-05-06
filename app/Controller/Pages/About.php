@@ -8,7 +8,7 @@ use \App\Utils\View;
 class About extends Page{
 
     /**
-     * Método responsável por retornar o conteúdo (view) da nossa home
+     * Método responsável por retornar o conteúdo (view) da nossa página de sobre
      * @return string
      */
     public static function getAbout(){
