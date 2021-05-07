@@ -2,22 +2,33 @@
 
 namespace App\Controller\Pages;
 
-use App\Model\Entity\Organization;
 use \App\Utils\View;
 use \App\Model\Entity\Testimony as EntityTestimony;
+use \WilliamCosta\DatabaseManager\Pagination;
 
 class Testimony extends Page{
 
     /**
      * Método responsável por obter a renderização dos items de depoimentos para a página
+     * @param Request $request
      * @return string
     */
-    private static function getTestimonyItems(){
+    private static function getTestimonyItems($request){
         //DEPOIMENTOS
         $items = '';
 
+        //QUANTIDADE TOTAL DE REGISTROS
+        $quantidadetotal = EntityTestimony::getTestimonies(null, null,null,'COUNT(*) as qtd')->fetchObject()->qtd;
+
+        //PÁGINA ATUAL
+        $queryParams = $request->getQueryParams();
+        $paginaAtual = $queryParams['page'] ?? 1;
+
+        //INSTÂNCIA DE PAGINAÇÃO
+        $obPagination = new Pagination($quantidadetotal,$paginaAtual,2);
+
         //RESULTADOS DA PÁGINA
-        $results = EntityTestimony::getTestimonies(null, 'id DESC');
+        $results = EntityTestimony::getTestimonies(null,'id DESC',$obPagination->getLimit());
 
         //RENDERIZA O ITEM
         while($obTestimony = $results->fetchObject(EntityTestimony::class)){
@@ -34,14 +45,13 @@ class Testimony extends Page{
 
     /**
      * Método responsável por retornar o conteúdo (view) de depoimentos 
+     * @param Request $request
      * @return string
      */
-    public static function getTestimonies(){
-        $obOrganization  = new Organization;
-
+    public static function getTestimonies($request){
         //VIEW DE DEPOIMENTOS
         $content = View::render('pages/testimonies', [
-            'items' => self::getTestimonyItems()
+            'items' => self::getTestimonyItems($request)
         ]);
 
         //RETORNA A VIEW DA PÁGINA
@@ -63,6 +73,7 @@ class Testimony extends Page{
         $obTestimony->mensagem = $postVars['mensagem'];
         $obTestimony->cadastrar();
 
-        return self::getTestimonies();
+        //RETORNA A PÁGINA DE LISTAGEM DE DEPOIMENTOS
+        return self::getTestimonies($request);
     }
 }
