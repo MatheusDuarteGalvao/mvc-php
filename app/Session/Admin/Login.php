@@ -34,4 +34,30 @@ class Login{
         return true;
     }
 
+    /**
+     * Método responsável por verificar se o usuário está logado
+     * @return boolean
+     */
+    public static function isLogged(){
+        //INICIA A SESSÃO
+        self::init();
+
+        //RETORNA A VERIFICAÇÃO
+        return isset($_SESSION['admin']['usuario']['id']);
+    }
+
+    /**
+     * Método responsável por executar o logout do usuário
+     * @return boolean
+     */
+    public static function logout(){
+        //INICIA A SESSÃO
+        self::init();
+
+        //DESTRÓI A SESSÃO
+        unset($_SESSION['admin']['usuario']);
+
+        //SUCESSO
+        return true;
+    }
 }
