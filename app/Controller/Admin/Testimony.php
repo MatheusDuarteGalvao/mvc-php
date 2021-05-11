@@ -69,7 +69,9 @@ class Testimony extends Page{
     public static function getNewTestimony($request){
         //CONTEÚDO DO FORMULÁRIO
         $content = View::render('admin/modules/testimonies/form',[
-            'title' => 'Cadastrar depoimento'
+            'title'     => 'Cadastrar depoimento',
+            'nome'      => '',
+            'mensagem'  => ''
         ]);
 
         //RETORNA A PÁGINA COMPLETA
@@ -93,5 +95,34 @@ class Testimony extends Page{
 
         //REDIRECIONA O USUÁRIO
         $request->getRouter()->redirect('/admin/testimonies/'.$obTestimony->id.'/edit?status=created');
+    }
+
+    /**
+     * Método responsável por retornar o formulário de edição de um depoimento
+     * @param Request $request
+     * @param integer $id
+     * @return string
+     */
+    public static function getEditTestimony($request,$id){
+        //OBTÉM O DEPOIMENTO DO BANCO DE DADOS
+        $obTestimony = EntityTestimony::getTestimonyById($id);
+
+        //VALIDA A INSTÂNCIA
+        if(!$obTestimony instanceof EntityTestimony){
+            $request->getRouter()->redirect('/admin/testimonies');
+        }
+
+        // echo '<pre>';
+        // print_r($obTestimony); die;
+
+        //CONTEÚDO DO FORMULÁRIO
+        $content = View::render('admin/modules/testimonies/form',[
+            'title'     => 'Editar depoimento',
+            'nome'      => $obTestimony->nome,
+            'mensagem'  => $obTestimony->mensagem
+        ]);
+
+        //RETORNA A PÁGINA COMPLETA
+        return parent::getPanel('Editar depoimento > Admin',$content, 'testimonies');
     }
 }
