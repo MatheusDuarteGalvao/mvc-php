@@ -71,7 +71,8 @@ class Testimony extends Page{
         $content = View::render('admin/modules/testimonies/form',[
             'title'     => 'Cadastrar depoimento',
             'nome'      => '',
-            'mensagem'  => ''
+            'mensagem'  => '',
+            'status'    => ''
         ]);
 
         //RETORNA A PÁGINA COMPLETA
@@ -98,6 +99,31 @@ class Testimony extends Page{
     }
 
     /**
+     * Método responsável por retornar o formulário de edição
+     * @param Request $request
+     * @return string
+     */
+    private static function getStatus($request){
+        //QUERY PARAMS
+        $queryParams = $request->getQueryParams();
+        // echo '<pre>';
+        // print_r($queryParams); exit;
+
+        //STATUS
+        if(!isset($queryParams['status'])) return '';
+
+        //MENSAGENS DE STATUS
+        switch ($queryParams['status']) {
+            case 'created':
+                return Alert::getSuccess('Depoimento criado com sucesso!');
+                break;
+            case 'updated':
+                return Alert::getSuccess('Depoimento atualizado com sucesso!');
+                break;
+        }
+    }
+
+    /**
      * Método responsável por retornar o formulário de edição de um depoimento
      * @param Request $request
      * @param integer $id
@@ -112,17 +138,42 @@ class Testimony extends Page{
             $request->getRouter()->redirect('/admin/testimonies');
         }
 
-        // echo '<pre>';
-        // print_r($obTestimony); die;
-
         //CONTEÚDO DO FORMULÁRIO
         $content = View::render('admin/modules/testimonies/form',[
             'title'     => 'Editar depoimento',
             'nome'      => $obTestimony->nome,
-            'mensagem'  => $obTestimony->mensagem
+            'mensagem'  => $obTestimony->mensagem,
+            'status'    => self::getStatus($request)
         ]);
 
         //RETORNA A PÁGINA COMPLETA
         return parent::getPanel('Editar depoimento > Admin',$content, 'testimonies');
+    }
+
+    /**
+     * Método responsável por gravar a atualização de um depoimento
+     * @param Request $request
+     * @param integer $id
+     * @return string
+     */
+    public static function setEditTestimony($request,$id){
+        //OBTÉM O DEPOIMENTO DO BANCO DE DADOS
+        $obTestimony = EntityTestimony::getTestimonyById($id);
+
+        //VALIDA A INSTÂNCIA
+        if(!$obTestimony instanceof EntityTestimony){
+            $request->getRouter()->redirect('/admin/testimonies');
+        }
+
+        //POST VARS
+        $postVars = $request->getPostVars();
+
+        //ATUALIZA A INSTÂNCIA
+        $obTestimony->nome      = $postVars['nome'] ?? $obTestimony->nome;
+        $obTestimony->mensagem  = $postVars['mensagem'] ?? $obTestimony->mensagem;
+        $obTestimony->atualizar();
+
+        //REDIRECIONA O USUÁRIO
+        $request->getRouter()->redirect('/admin/testimonies/'.$obTestimony->id.'/edit?status=updated');
     }
 }
