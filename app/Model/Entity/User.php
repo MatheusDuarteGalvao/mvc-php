@@ -44,12 +44,6 @@ class User{
      * @return boolean
     */
     public function cadastrar(){
-        //DEFINE A DATA
-        $this->data = date('Y-m-d H:i:s');
-
-        //DEFINE A SENHA
-        $this->senha = password_hash($this->senha,PASSWORD_DEFAULT);
-
         //INSERE O USUÁRIO NO BANCO DE DADOS
         $this->id = (new Database('usuarios'))->insert([
             'nome'  => $this->nome,
@@ -66,9 +60,6 @@ class User{
      * @return boolean
     */
     public function atualizar(){
-        //DEFINE A SENHA
-        $this->senha = password_hash($this->senha,PASSWORD_DEFAULT);
-
         //ATUALIZA O USUÁRIO NO BANCO DE DADOS
         return (new Database('usuarios'))->update('id = '.$this->id,[
             'nome'      => $this->nome,

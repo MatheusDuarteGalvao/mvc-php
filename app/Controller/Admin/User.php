@@ -72,8 +72,7 @@ class User extends Page{
             'title'     => 'Cadastrar usuário',
             'nome'      => '',
             'email'     => '',
-            'senha'     => '',
-            'status'    => ''
+            'status'    => self::getStatus($request)
         ]);
 
         //RETORNA A PÁGINA COMPLETA
@@ -87,13 +86,23 @@ class User extends Page{
      */
     public static function setNewUser($request){
         //POST VARS
-        $postVars = $request->getPostVars();
+        $postVars   = $request->getPostVars();
+        $email      = $postVars['email'] ?? '';
+        $nome       = $postVars['nome'] ?? '';
+        $senha      = $postVars['senha'] ?? '';
+
+        //VALIDA O E-MAIL DO USUÁRIO
+        $obUser = EntityUser::getUserByEmail($email);
+        if($obUser instanceof EntityUser){
+            //REDIRECIONA O USUÁRIO
+            $request->getRouter()->redirect('/admin/users/new?status=duplicated');
+        }
 
         //NOVA INSTÂNCIA DE DEPOIMENTO
         $obUser         = new EntityUser;
-        $obUser->nome   = $postVars['nome'] ?? '';
-        $obUser->email  = $postVars['email'] ?? '';
-        $obUser->senha  = $postVars['senha'] ?? '';
+        $obUser->nome   = $nome;
+        $obUser->email  = $email;
+        $obUser->senha  = password_hash($senha,PASSWORD_DEFAULT);
         $obUser->cadastrar();
 
         //REDIRECIONA O USUÁRIO
@@ -122,6 +131,9 @@ class User extends Page{
                 break;
             case 'deleted':
                 return Alert::getSuccess('Usuário excluído com sucesso!');
+                break;
+            case 'duplicated':
+                return Alert::getError('O e-mail digitado já está sendo utilizado por outro usuário!');
                 break;
         }
     }
@@ -198,8 +210,8 @@ class User extends Page{
 
         //CONTEÚDO DO FORMULÁRIO
         $content = View::render('admin/modules/users/delete',[
-            'nome'      => $obUser->nome,
-            'mensagem'  => $obUser->mensagem
+            'nome'  => $obUser->nome,
+            'email' => $obUser->email
         ]);
 
         //RETORNA A PÁGINA COMPLETA
