@@ -182,11 +182,21 @@ class User extends Page{
 
         //POST VARS
         $postVars = $request->getPostVars();
+        $email    = $postVars['email'] ?? '';
+        $nome     = $postVars['nome'] ?? '';
+        $senha    = $postVars['senha'] ?? '';
+ 
+        //VALIDA O E-MAIL DO USUÁRIO
+        $obUserEmail = EntityUser::getUserByEmail($email);
+        if($obUserEmail instanceof EntityUser && $obUserEmail->id != $id){
+            //REDIRECIONA O USUÁRIO
+            $request->getRouter()->redirect('/admin/users/'.$id.'/edit?status=duplicated');
+        }
 
         //ATUALIZA A INSTÂNCIA
-        $obUser->nome    = $postVars['nome'] ?? $obUser->nome;
-        $obUser->email   = $postVars['email'] ?? $obUser->email;
-        $obUser->senha   = $postVars['senha'] ?? '';
+        $obUser->nome  = $nome;
+        $obUser->email = $email;
+        $obUser->senha = password_hash($senha,PASSWORD_DEFAULT);
         $obUser->atualizar();
 
         //REDIRECIONA O USUÁRIO

@@ -62,9 +62,9 @@ class User{
     public function atualizar(){
         //ATUALIZA O USUÁRIO NO BANCO DE DADOS
         return (new Database('usuarios'))->update('id = '.$this->id,[
-            'nome'      => $this->nome,
-            'mensagem'  => $this->mensagem,
-            'senha'     => $this->senha
+            'nome'   => $this->nome,
+            'email'  => $this->email,
+            'senha'  => $this->senha
         ]);
 
         //SUCESSO
